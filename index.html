@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shine & Inspire - Women's Day Card</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            max-width: 500px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(255, 105, 180, 0.7); }
+            to { box-shadow: 0 0 30px rgba(255, 105, 180, 1); }
+        }
+
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+        }
+
+        #message {
+            color: #333;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            min-height: 60px;
+        }
+
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        #nameInput {
+            padding: 8px;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border: 1px solid #ff6b6b;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Shine & Inspire</h1>
+        <input id="nameInput" placeholder="Enter your name">
+        <div id="message">Happy International Women's Day! Click the button for an inspiring message.</div>
+        <button onclick="generateMessage()">New Inspiration</button>
+    </div>
+
+    <script>
+        const API_KEY = "AIzaSyD1VbmhZ-B2Ec3mB-Dfweqo9uPreXD1liw";
+
+        const messages = [
+            "You are a brilliant light that inspires everyone around you!",
+            "Your strength and grace make the world a better place.",
+            "Keep shining - the world needs your unique brilliance!",
+            "You are capable of amazing things - never stop believing!",
+            "Your courage inspires others to be their best selves."
+        ];
+
+        async function generateContentWithGemini(apiKey) {
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+          const requestBody = JSON.stringify({
+            contents: [{
+              parts: [{ text: "Create a heartfelt and empowering message for International Women's Day. Max length is 20 words. No need Happy International Women's Day" }]
+            }]
+          });
+
+          try {
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: requestBody
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text; // Returns the JSON response from the Gemini API
+          } catch (error) {
+            console.error("Error calling Gemini API:", error);
+            return messages[Math.floor(Math.random() * messages.length)]; // Or handle the error as appropriate for your application
+          }
+        }
+
+        async function generateMessage() {
+            const nameInput = document.getElementById('nameInput').value;
+            const name = nameInput.trim() ? nameInput : "Beautiful Soul";
+            const randomMsg = await generateContentWithGemini(API_KEY);
+            document.getElementById('message').innerHTML = `${name}, ${randomMsg}`;
+            createSparkles();
+        }
+
+        function createSparkles() {
+            const card = document.querySelector('.card');
+            for (let i = 0; i < 10; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                const x = Math.random() * card.offsetWidth;
+                const y = Math.random() * card.offsetHeight;
+                sparkle.style.left = x + 'px';
+                sparkle.style.top = y + 'px';
+                sparkle.style.animationDelay = (Math.random() * 1) + 's';
+                card.appendChild(sparkle);
+                
+                setTimeout(() => sparkle.remove(), 2000);
+            }
+        }
+
+        // Initial sparkles
+        createSparkles();
+    </script>
+</body>
+</html>
